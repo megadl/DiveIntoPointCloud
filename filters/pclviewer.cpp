@@ -1,15 +1,4 @@
-#include <pcl/io/pcd_io.h>
-#include <pcl/point_types.h>
-#include <pcl/visualization/pcl_visualizer.h>
-#include <pcl/filters/passthrough.h>
-#include <pcl/filters/voxel_grid.h>
-#include <pcl/filters/statistical_outlier_removal.h>
-#include <pcl/filters/radius_outlier_removal.h>
-#include <pcl/filters/conditional_removal.h>
-#include <pcl/filters/extract_indices.h>
-#include <pcl/filters/project_inliers.h>
-#include <pcl/filters/crop_box.h>
-#include <pcl/filters/crop_hull.h>
+
 
 #include <chrono>
 #include <thread>
@@ -18,17 +7,19 @@ using namespace std::chrono_literals;
 
 pcl::PointCloud<pcl::PointXYZ>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZ>);
 
-enum class FilterType {
-    PassThrough,
-    VoxelGrid,
-    StatisticalOutlierRemoval,
-    RadiusOutlierRemoval,
-    ConditionalRemoval,
-    ExtractIndices,
-    ProjectInliers,
-    CropBox,
-    CropHull
-};
+void main(int argc, char* argv[])
+{
+    FilterType filtertype = FilterType::PassThrough;
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZ>);
+    pcl::io::loadPCDFile ("table_scene_mug_stereo_textured.pcd", *cloud);
+    filterPipeline(filtertype);
+    viewer = simpleVis(cloud);
+    while (!viewer.wasStopped())
+    {
+        viewer.spinOnce(100);
+        std::this_thread::sleep_for(100ms);
+    }
+}
 
 pcl::PointCloud<pcl::PointXYZ> filterPipeline(int filtertype){
             pcl::PassThrough<pcl::PointXYZ> pass;
@@ -66,8 +57,6 @@ pcl::PointCloud<pcl::PointXYZ> filterPipeline(int filtertype){
             break;
         case 4:
 
-
-            break;
         case 5:
             sor5.setInputCloud(cloud);
             pcl::PointIndices::Ptr inliers(new pcl::PointIndices);
@@ -81,22 +70,18 @@ pcl::PointCloud<pcl::PointXYZ> filterPipeline(int filtertype){
     return *cloud;
 }
 
-void main(int argc, char* argv[])
+
+
+pcl::visualization::PCLVisualizer::Ptr simpleVis (pcl::PointCloud<pcl::PointXYZ>::ConstPtr cloud)
 {
-    FilterType filtertype = FilterType::PassThrough;
-    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZ>);
-    pcl::io::loadPCDFile ("table_scene_mug_stereo_textured.pcd", *cloud);
-    pcl::visualization::PCLVisualizer viewer("PCL Viewer");
-
-
-    viewer.setBackgroundColor(0, 0, 0);
-    viewer.addPointCloud(cloud, "sample cloud");
-    viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "sample cloud");
-    viewer.addCoordinateSystem(1.0);
-    viewer.initCameraParameters();
-    while (!viewer.wasStopped())
-    {
-        viewer.spinOnce(100);
-        std::this_thread::sleep_for(100ms);
-    }
+  // --------------------------------------------
+  // -----Open 3D viewer and add point cloud-----
+  // --------------------------------------------
+  pcl::visualization::PCLVisualizer::Ptr viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
+  viewer->setBackgroundColor (0, 0, 0);
+  viewer->addPointCloud<pcl::PointXYZ> (cloud, "sample cloud");
+  viewer->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 3, "sample cloud");
+  viewer->addCoordinateSystem (1.0);
+  viewer->initCameraParameters ();
+  return (viewer);
 }
