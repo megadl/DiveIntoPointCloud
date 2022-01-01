@@ -13,7 +13,8 @@ void preciseVoxelGrid(pcl::PointCloud<pcl::PointXYZ>::Ptr sp)
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_f(new pcl::PointCloud<pcl::PointXYZ>); // a new pointcloud
     pcl::VoxelGrid<pcl::PointXYZ> voxel;
     voxel.setInputCloud(sp);
-    voxel.setLeafSize(0.01f,0.01f,0.01f);
+    voxel.setLeafSize(0.1f,0.1f,0.1f);
+    voxel.setMinimumPointsNumberPerVoxel(25); // compute according to sensor 
     voxel.filter(*cloud_f);
 
     pcl::KdTreeFLANN<pcl::PointXYZ> kdtree;
