@@ -8,20 +8,27 @@
 #include <pcl/filters/project_inliers.h>
 #include <pcl/segmentation/sac_segmentation.h>
 #include <pcl/surface/convex_hull.h>
+#include <pcl/surface/impl/convex_hull.hpp> // careful!! without this, you'll get Link2019 Error!!
 #include <pcl/visualization/pcl_visualizer.h>
 #include <chrono>
 #include <thread>
 using namespace std::chrono_literals;
 
+//! @brief convexHull filterï¼Œuse a convex to filter the cloud, and return the resultant projection.
+//! @param cloud 
+//! @param cloud_filtered 
+//! @param cloud_projected 
 void
-ConvexHullFilter(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered, pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_projected)
+ConvexHullFilter(const pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud, 
+	const pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud_filtered, 
+	const pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud_projected)
 {
 
 	pcl::PCDReader reader;
 	reader.read("D:/pcd/table_scene_mug_stereo_textured.pcd", *cloud);
 	//------------------------------------------------------------
 	// Build a filter to remove spurious NaNs and scene background
-	// ¹¹½¨Ò»¸öÂË²¨Æ÷ÓÃÀ´ÒÆ³ı¼ÙµÄNaNºÍ±³¾°
+	// æ„å»ºä¸€ä¸ªæ»¤æ³¢å™¨ç”¨æ¥ç§»é™¤å‡çš„NaNå’ŒèƒŒæ™¯
 	// -----------------------------------------------------------
 	pcl::PassThrough<pcl::PointXYZ> pass;
 	pass.setInputCloud(cloud);
@@ -68,15 +75,17 @@ ConvexHullFilter(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, pcl::PointCloud<pcl:
 }
 
 
-void _main()
+void main()
 {
-	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>); // ´æ´¢ÊäÈëµãÔÆ
-	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered(new pcl::PointCloud<pcl::PointXYZ>); // ´æ´¢¹ıÂËµãÔÆ
-	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_projected(new pcl::PointCloud<pcl::PointXYZ>); // ´æ´¢Í¶Ó°µãÔÆ
+	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>); // å­˜å‚¨è¾“å…¥ç‚¹äº‘
+	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered(new pcl::PointCloud<pcl::PointXYZ>); // å­˜å‚¨è¿‡æ»¤ç‚¹äº‘
+	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_projected(new pcl::PointCloud<pcl::PointXYZ>); // å­˜å‚¨æŠ•å½±ç‚¹äº‘
 	pcl::visualization::PCLVisualizer::Ptr viewer(new pcl::visualization::PCLVisualizer("ConvexHullFilter"));
 	ConvexHullFilter(cloud, cloud_filtered, cloud_projected);
 
-	int v1{0}, v2{0}, v3{0};
+	int v1{ 0 }; // origin cloud
+	int v2{ 0 }; // convex filtered
+	int v3{ 0 }; // projection
 	viewer->createViewPort(0, 0, 0.33, 1, v1);
 	viewer->setBackgroundColor(0, 0, 0, v1);
 	pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> red(cloud, 255, 0, 0);
@@ -84,9 +93,8 @@ void _main()
 	viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 3, "sample cloud");
 	viewer->addCoordinateSystem(1.0);
 	viewer->initCameraParameters();
-	// ÉèÖÃÏÔÊ¾ÊôĞÔ
-	//pcl::visualization::PointCloudColorHandlerCustom
-	viewer->createViewPort(0.33, 0, 0.5, 1, v2);
+	// è®¾ç½®æ˜¾ç¤ºå±æ€§
+	viewer->createViewPort(0.33, 0, 0.67, 1, v2);
 	viewer->setBackgroundColor(0, 0, 0, v2);
 	pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> green(cloud_filtered, 0, 255, 0);
 	viewer->addPointCloud(cloud_filtered, green, "filtered cloud");
@@ -94,7 +102,7 @@ void _main()
 	viewer->addCoordinateSystem(1.0);
 	viewer->initCameraParameters();
 
-	viewer->createViewPort(0.5, 0, 1, 1, v3);
+	viewer->createViewPort(0.67, 0, 1, 1, v3);
 	viewer->setBackgroundColor(0, 0, 0, v3);
 	pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> blue(cloud_projected, 0, 0, 255);
 	viewer->addPointCloud(cloud_projected, blue, "projected cloud");
