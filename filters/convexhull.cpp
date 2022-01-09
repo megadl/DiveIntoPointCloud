@@ -93,7 +93,7 @@ void main()
 	viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 3, "sample cloud");
 	viewer->addCoordinateSystem(1.0);
 	viewer->initCameraParameters();
-	// 设置显示属性
+	// 设置显示属性 property
 	viewer->createViewPort(0.33, 0, 0.67, 1, v2);
 	viewer->setBackgroundColor(0, 0, 0, v2);
 	pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> green(cloud_filtered, 0, 255, 0);

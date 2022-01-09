@@ -1,6 +1,6 @@
 //GridMinimum assembles a local 2D grid over a given PointCloud, and downsamples the data with the minimum z value
 //GridMinimum can be useful in a number of topographic processing tasks such as crudely estimating ground returns, especially under foliage.
-// ÔÚµØĞÎ´¦ÀíÈÎÎñÖĞ±È½ÏÓĞÓÃ£¬¿ÉÒÔÖ±½ÓÉ¾³ıµØÃæ·µ»ØĞÅÏ¢£¬ÌØ±ğÊÇÔÚÊ÷Ò¶ÏÂµÄÄÇÖÖÇé¿ö£¬Ò²¾ÍÊÇ¸ß³ÌÖĞ¶ÏµÄÇé¿ö£¨Ê÷Ò¶Ä©¶ËºÍµØÃæÖ®¼äÃ»ÓĞ¸ß³Ì£©¡£
+// åœ¨åœ°å½¢å¤„ç†ä»»åŠ¡ä¸­æ¯”è¾ƒæœ‰ç”¨ï¼Œå¯ä»¥ç›´æ¥åˆ é™¤åœ°é¢è¿”å›ä¿¡æ¯ï¼Œç‰¹åˆ«æ˜¯åœ¨æ ‘å¶ä¸‹çš„é‚£ç§æƒ…å†µï¼Œä¹Ÿå°±æ˜¯é«˜ç¨‹ä¸­æ–­çš„æƒ…å†µï¼ˆæ ‘å¶æœ«ç«¯å’Œåœ°é¢ä¹‹é—´æ²¡æœ‰é«˜ç¨‹ï¼‰ã€‚
 #include <pcl/filters/grid_minimum.h>
 #include <pcl/point_types.h>
 #include <pcl/visualization/pcl_visualizer.h>
@@ -12,7 +12,7 @@ template <typename T1, typename T2>
 void Grid_minimum(const T1& cloud_shared_ptr, T2& cloud_shared_ptr_f)
 {
 	constexpr float resolution = 0.1;
-	pcl::GridMinimum<pcl::PointXYZ> sor(resolution); // Çø±ğÓÚvoxelgridºÍapproximate_voxelgrid£¬ÒÀ¾İ¹¹Ôìº¯ÊıĞèÒª¸ø³ö2DÍø¸ñ±ß³¤,Ã»ÓĞdefault constructor
+	pcl::GridMinimum<pcl::PointXYZ> sor(resolution); // åŒºåˆ«äºvoxelgridå’Œapproximate_voxelgridï¼Œä¾æ®æ„é€ å‡½æ•°éœ€è¦ç»™å‡º2Dç½‘æ ¼è¾¹é•¿,æ²¡æœ‰default constructor
 	//sor.setResolution(resolution);
 	sor.setInputCloud(cloud_shared_ptr);
 	//sor.filter(cloud_shared_ptr_f);
