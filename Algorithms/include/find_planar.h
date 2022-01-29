@@ -3,22 +3,28 @@
 #include <pcl/point_cloud.h>
 
 #include <pcl/filters/voxel_grid.h>
+#include <pcl/filters/approximate_voxel_grid.h>
+
 #include <pcl/features/normal_3d_omp.h>
 
 #include <pcl/ModelCoefficients.h>
 #include <pcl/sample_consensus/ransac.h>
-#include <pcl/sample_consensus/model_type.h>
+#include <pcl/sample_consensus/model_types.h>
 #include <pcl/sample_consensus/method_types.h>
 #include <pcl/segmentation/sac_segmentation.h> //represents the Nodelet segmentation class for Sample Consensus methods and models, it's a wrapper for generic-purpose SAC_based segmentation
 
 #include <pcl/filters/extract_indices.h>
 #include <pcl/segmentation/extract_clusters.h>
 
+
+#include <pcl/console/time.h> // fot tic-toc timing 
+
 struct downsampleParameters
 {
     float leafsize;
     float limit_min;
     float limit_max;
+    bool centroid = ture;
 };
 
 struct normalEstimationParameters
@@ -26,8 +32,15 @@ struct normalEstimationParameters
 
     float radius_;
     float ksearch_;
-    int thread_nums; // for omp
+    int thread_nums = 4; // for omp
 };
+
+struct ParametersForFitting
+{
+    float distance_threshold;
+    int max_iterations;
+};
+
 
 class PlanarFinder
 {
@@ -38,6 +51,7 @@ public:
     explicit PlanarFinder();
     ~PlanarFinder();
 
+public:
     /**
      * @brief downsample the input point cloud to accelerate subsequent algorithms
      * 
@@ -56,7 +70,7 @@ public:
      * @return pcl::PointCloud<PointNT>::Ptr A pointer to point cloud with pcl::PointXYZ
      */
     static pcl::PointCloud<PointNT>::Ptr
-    surfaceNormalEstimation(const pcl::PointCloud<PointNT>::Ptr &cloudin, normalEstimationParameters params);
+    surfaceNormalEstimation(const pcl::PointCloud<PointT>::Ptr &cloudin, normalEstimationParameters params);
 
     /**
      * @brief compute planar equation's coefficients
@@ -84,6 +98,8 @@ public:
      * @param cloudin input cloud data
      * @param params user defined algorithm parameters
      */
-    void clusterPlanes(const pcl::PointCloud<pcl::PointXYZ>::Ptr &cloudin,
+    static void clusterPlanes(const pcl::PointCloud<pcl::PointXYZ>::Ptr &cloudin,
                        clusterSegParameters params, std::vector<pcl::PointIndices> &cluster_indices_out);
+
+    static pcl::console::TicToc tt; // function timing
 };
